@@ -16,15 +16,22 @@ def order_api_request(sender, instance, **kwargs):
 		'Authorization': f'Token {instance.warehouse.token}'
 	}
 
+	print(kwargs)
 	if kwargs['created']:
 		# CREATE WAREHOUSE RECORD
-		requests.post(instance.warehouse.url, json=order, headers=headers)
+		try:
+			requests.post(instance.warehouse.url, json=order, headers=headers)
+		except Exception as ex:
+			print(ex)
 	else:
 		# UPDATE EXISTING WAREHOUSE RECORD
 		# URL for creating looks like: http://127.0.0.1:8001/api/v1/order/
 		# We change it to Update URL pattern: http://127.0.0.1:8001/api/v1/order/{str:slug}/
 		url = f'{instance.warehouse.url}{instance.slug}/'
-		requests.put(url, json=order, headers=headers)
+		try:
+			requests.put(url, json=order, headers=headers)
+		except Exception as ex:
+			print(ex)
 
 
 @receiver(post_delete, sender=Order)
@@ -36,4 +43,7 @@ def order_api_delete(sender, instance, **kwargs):
 	# URL for creating looks like: http://127.0.0.1:8001/api/v1/order/
 	# We change it to Delete URL pattern: http://127.0.0.1:8001/api/v1/order/{str:slug}/
 	url = f'{instance.warehouse.url}{instance.slug}/'
-	requests.delete(url, json={'slug': instance.slug}, headers=headers)
+	try:
+		requests.delete(url, json={'slug': instance.slug}, headers=headers)
+	except Exception as ex:
+		print(ex)
